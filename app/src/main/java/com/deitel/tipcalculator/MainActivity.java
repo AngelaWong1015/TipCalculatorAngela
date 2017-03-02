@@ -14,9 +14,6 @@ import android.widget.TextView;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 
-import static com.deitel.tipcalculator.R.string.tip;
-import static com.deitel.tipcalculator.R.string.total;
-
 // MainActivity class for the Tip Calculator app
 public class MainActivity extends AppCompatActivity {
 
@@ -42,7 +39,60 @@ public class MainActivity extends AppCompatActivity {
    private BigDecimal bigTip = new BigDecimal("0.0");
    private BigDecimal bigTotal = new BigDecimal("0.0");
    private BigDecimal bigOneHundred = new BigDecimal("100.0");
+   // listener object for the SeekBar's progress changed events
+   private final OnSeekBarChangeListener seekBarListener =
+      new OnSeekBarChangeListener() {
+         // update percent, then call calculate
+         @Override
+         public void onProgressChanged(SeekBar seekBar, int progress,
+            boolean fromUser) {
+            //------------Should use bigDecimal calculation
+            BigDecimal bigProgress = new BigDecimal(progress);
 
+            bigPercent = bigProgress.divide(bigOneHundred, 2, BigDecimal.ROUND_CEILING);
+            percent = progress / 100.0; // set percent based on progress
+            calculate(); // calculate and display tip and total
+         }
+
+         @Override
+         public void onStartTrackingTouch(SeekBar seekBar) { }
+
+         @Override
+         public void onStopTrackingTouch(SeekBar seekBar) { }
+      };
+   // listener object for the EditText's text-changed events
+   private final TextWatcher amountEditTextWatcher = new TextWatcher() {
+      // called when the user modifies the bill amount
+      @Override
+      public void onTextChanged(CharSequence s, int start,
+         int before, int count) {
+
+         try { // get bill amount and display currency formatted value
+            //billAmount = Double.parseDouble(s.toString()) / 100.0;
+            BigDecimal bigDs = new BigDecimal(s.toString());
+
+            bigBillAmount = bigDs.divide(bigOneHundred, 2, BigDecimal.ROUND_CEILING);
+
+            //billAmount = String.valueOf(s.toString()/100.0_;
+            //currencyFormat.setParseBigDecimal(true);
+            amountTextView.setText(currencyFormat.format(bigBillAmount));
+         }
+         catch (NumberFormatException e) { // if s is empty or non-numeric
+            amountTextView.setText("");
+            billAmount = "0.0";
+            bigBillAmount = new BigDecimal("0.0");
+         }
+
+         calculate(); // update the tip and total TextViews
+      }
+
+      @Override
+      public void afterTextChanged(Editable s) { }
+
+      @Override
+      public void beforeTextChanged(
+         CharSequence s, int start, int count, int after) { }
+   };
 
    // called when the activity is first created
    @Override
@@ -61,12 +111,12 @@ public class MainActivity extends AppCompatActivity {
 
       // set amountEditText's TextWatcher
       EditText amountEditText =
-         (EditText) findViewById(R.id.amountEditText);
+              (EditText) findViewById(R.id.amountEditText);
       amountEditText.addTextChangedListener(amountEditTextWatcher);
 
       // set percentSeekBar's OnSeekBarChangeListener
       SeekBar percentSeekBar =
-         (SeekBar) findViewById(R.id.percentSeekBar);
+              (SeekBar) findViewById(R.id.percentSeekBar);
       percentSeekBar.setOnSeekBarChangeListener(seekBarListener);
    }
 
@@ -94,62 +144,6 @@ public class MainActivity extends AppCompatActivity {
       //tipTextView.setText(currencyFormat.format(tip));
       //totalTextView.setText(currencyFormat.format(total));
    }
-
-   // listener object for the SeekBar's progress changed events
-   private final OnSeekBarChangeListener seekBarListener =
-      new OnSeekBarChangeListener() {
-         // update percent, then call calculate
-         @Override
-         public void onProgressChanged(SeekBar seekBar, int progress,
-            boolean fromUser) {
-            //------------Should use bigDecimal calculation
-            BigDecimal bigProgress = new BigDecimal(progress);
-
-            bigPercent = bigProgress.divide(bigOneHundred, 2, BigDecimal.ROUND_CEILING);
-            percent = progress / 100.0; // set percent based on progress
-            calculate(); // calculate and display tip and total
-         }
-
-         @Override
-         public void onStartTrackingTouch(SeekBar seekBar) { }
-
-         @Override
-         public void onStopTrackingTouch(SeekBar seekBar) { }
-      };
-
-   // listener object for the EditText's text-changed events
-   private final TextWatcher amountEditTextWatcher = new TextWatcher() {
-      // called when the user modifies the bill amount
-      @Override
-      public void onTextChanged(CharSequence s, int start,
-         int before, int count) {
-
-         try { // get bill amount and display currency formatted value
-            //billAmount = Double.parseDouble(s.toString()) / 100.0;
-            BigDecimal bigDs = new BigDecimal(s.toString());
-
-            bigBillAmount = bigDs.divide(bigOneHundred, 2, BigDecimal.ROUND_CEILING);
-
-            //billAmount = String.valueOf(s.toString()/100.0_;
-            //currencyFormat.setParseBigDecimal(true);
-            amountTextView.setText(currencyFormat.format(bigBillAmount));
-         }
-         catch (NumberFormatException e) { // if s is empty or non-numeric
-            amountTextView.setText("");
-            billAmount = 0.0;
-            bigBillAmount = new BigDecimal("0.0");
-         }
-
-         calculate(); // update the tip and total TextViews
-      }
-
-      @Override
-      public void afterTextChanged(Editable s) { }
-
-      @Override
-      public void beforeTextChanged(
-         CharSequence s, int start, int count, int after) { }
-   };
 }
 
 
